@@ -1,8 +1,1 @@
-{
-  "firestore": {
-    "database": "(default)",
-    "location": "asia-southeast1",
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  }
-}
+{"firestore":{"database":"(default)","location":"asia-southeast1","rules":"firestore.rules","indexes":"firestore.indexes.json"},"flutter":{"platforms":{"android":{"default":{"projectId":"ridetrack-a18f6","appId":"1:418265530629:android:0843a6111910c4a472376c","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"ridetrack-a18f6","configurations":{"android":"1:418265530629:android:0843a6111910c4a472376c","ios":"1:418265530629:ios:e5d4a070e6d56bc772376c","macos":"1:418265530629:ios:e5d4a070e6d56bc772376c","web":"1:418265530629:web:a9e8327712562f1372376c","windows":"1:418265530629:web:39d115de585601f172376c"}}}}}}

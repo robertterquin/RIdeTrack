@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'package:bikeapp/core/constants/app_colors.dart';
 import 'package:bikeapp/presentation/pages/splash/splash_page.dart';
 import 'package:bikeapp/presentation/pages/auth/get_started_page.dart';
@@ -6,7 +8,11 @@ import 'package:bikeapp/presentation/pages/auth/login_page.dart';
 import 'package:bikeapp/presentation/pages/auth/signup_page.dart';
 import 'package:bikeapp/presentation/pages/dashboard/dashboard_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 

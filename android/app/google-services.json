@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "418265530629",
+    "project_id": "ridetrack-a18f6",
+    "storage_bucket": "ridetrack-a18f6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:418265530629:android:0843a6111910c4a472376c",
+        "android_client_info": {
+          "package_name": "com.example.bikeapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATt6lhlzYPoFqv9b5k-LFyhhIKTPyU6qQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
