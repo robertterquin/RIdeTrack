@@ -4,6 +4,7 @@ import 'package:bikeapp/presentation/pages/splash/splash_page.dart';
 import 'package:bikeapp/presentation/pages/auth/get_started_page.dart';
 import 'package:bikeapp/presentation/pages/auth/login_page.dart';
 import 'package:bikeapp/presentation/pages/auth/signup_page.dart';
+import 'package:bikeapp/presentation/pages/dashboard/dashboard_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
         '/get-started': (context) => const GetStartedPage(),
         '/auth/login': (context) => const LoginPage(),
         '/auth/signup': (context) => const SignUpPage(),
+        '/dashboard': (context) => const DashboardPage(),
       },
     );
   }

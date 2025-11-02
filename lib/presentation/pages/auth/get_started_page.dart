@@ -8,6 +8,9 @@ class GetStartedPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+  // Make logo responsive: use 60% of screen width but cap at 420
+  final double logoSize = (MediaQuery.of(context).size.width * 0.6).clamp(0.0, 420.0);
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -25,11 +28,12 @@ class GetStartedPage extends StatelessWidget {
               children: [
                 const Spacer(),
                 
-                // Logo
+                // Logo (responsive)
                 Image.asset(
                   'assets/images/BikeTrack.png',
-                  width: 260,
-                  height: 260,
+                  width: logoSize,
+                  height: logoSize,
+                  fit: BoxFit.contain,
                 ),
                 
                 const Spacer(),

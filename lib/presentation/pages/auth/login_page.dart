@@ -25,10 +25,9 @@ class _LoginPageState extends State<LoginPage> {
 
   void _handleLogin() {
     if (_formKey.currentState?.validate() ?? false) {
-      // TODO: Implement actual login logic
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login functionality coming soon!')),
-      );
+      // TODO: Implement actual login logic with Firebase/backend
+      // For now, navigate to dashboard
+      Navigator.of(context).pushReplacementNamed('/dashboard');
     }
   }
 
