@@ -39,6 +39,19 @@ lib/
 └── providers/                   # State management (e.g., Riverpod, Provider, Bloc)
 ```
 
+## Assets
+
+- `assets/images/` — place app images (icons, splash, onboarding illustrations) here.
+- When adding images, register them in `pubspec.yaml` under the `flutter:` -> `assets:` section. Example:
+
+```yaml
+flutter:
+	assets:
+		- assets/images/
+```
+
+Place platform-specific launch/splash images in the platform folders where appropriate (Android drawables, iOS Asset Catalog) and reference them in platform configs.
+
 ## Key files to inspect when making changes
 
 - `lib/main.dart` — app entry, routing setup, theme configuration.
