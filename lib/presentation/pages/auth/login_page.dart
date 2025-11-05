@@ -55,11 +55,41 @@ class _LoginPageState extends State<LoginPage> {
         
         if (!mounted) return;
 
-        // Show error message
+        // Show error message with user-friendly text
+        String errorMessage = 'Login failed. Please try again.';
+        
+        if (e.toString().contains('wrong-password') || e.toString().contains('Wrong password')) {
+          errorMessage = 'Incorrect password. Please try again.';
+        } else if (e.toString().contains('user-not-found') || e.toString().contains('No user found')) {
+          errorMessage = 'No account found with this email.';
+        } else if (e.toString().contains('invalid-email')) {
+          errorMessage = 'Invalid email address.';
+        } else if (e.toString().contains('too-many-requests')) {
+          errorMessage = 'Too many failed attempts. Please try again later.';
+        } else if (e.toString().contains('network')) {
+          errorMessage = 'Network error. Please check your connection.';
+        }
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString()),
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    errorMessage,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ),
+              ],
+            ),
             backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            margin: const EdgeInsets.all(16),
             duration: const Duration(seconds: 4),
           ),
         );
@@ -75,6 +105,31 @@ class _LoginPageState extends State<LoginPage> {
         print('⚠️ Widget not mounted, skipping navigation');
         return;
       }
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(Icons.check_circle_outline, color: Colors.white),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Welcome back! Login successful.',
+                  style: TextStyle(fontSize: 14),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: AppColors.success,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          margin: const EdgeInsets.all(16),
+          duration: const Duration(seconds: 2),
+        ),
+      );
 
       print('🚀 Navigating to dashboard...');
 

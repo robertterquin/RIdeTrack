@@ -64,11 +64,41 @@ class _SignUpPageState extends State<SignUpPage> {
         
         if (!mounted) return;
 
-        // Show error message
+        // Show error message with user-friendly text
+        String errorMessage = 'Signup failed. Please try again.';
+        
+        if (e.toString().contains('email-already-in-use') || e.toString().contains('already exists')) {
+          errorMessage = 'This email is already registered. Please login instead.';
+        } else if (e.toString().contains('weak-password') || e.toString().contains('too weak')) {
+          errorMessage = 'Password is too weak. Use at least 6 characters.';
+        } else if (e.toString().contains('invalid-email')) {
+          errorMessage = 'Invalid email address format.';
+        } else if (e.toString().contains('network')) {
+          errorMessage = 'Network error. Please check your connection.';
+        } else if (e.toString().contains('operation-not-allowed')) {
+          errorMessage = 'Email/password signup is not enabled. Please contact support.';
+        }
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString()),
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    errorMessage,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ),
+              ],
+            ),
             backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            margin: const EdgeInsets.all(16),
             duration: const Duration(seconds: 4),
           ),
         );
@@ -87,10 +117,26 @@ class _SignUpPageState extends State<SignUpPage> {
 
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Account created successfully!'),
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(Icons.check_circle_outline, color: Colors.white),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Account created successfully! Welcome to RideTrack.',
+                  style: TextStyle(fontSize: 14),
+                ),
+              ),
+            ],
+          ),
           backgroundColor: AppColors.success,
-          duration: Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          margin: const EdgeInsets.all(16),
+          duration: const Duration(seconds: 3),
         ),
       );
 

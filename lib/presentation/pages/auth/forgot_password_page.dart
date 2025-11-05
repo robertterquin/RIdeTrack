@@ -61,10 +61,26 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Password changed successfully!'),
+          SnackBar(
+            content: const Row(
+              children: [
+                Icon(Icons.check_circle_outline, color: Colors.white),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Password changed successfully!',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                ),
+              ],
+            ),
             backgroundColor: AppColors.success,
-            duration: Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            margin: const EdgeInsets.all(16),
+            duration: const Duration(seconds: 3),
           ),
         );
 
@@ -81,18 +97,24 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         
         if (!mounted) return;
 
-        String errorMessage = 'Failed to change password';
+        String errorMessage = 'Failed to change password. Please try again.';
         
         if (e is FirebaseAuthException) {
           if (e.code == 'wrong-password') {
-            errorMessage = 'Current password is incorrect';
+            errorMessage = 'Current password is incorrect. Please try again.';
           } else if (e.code == 'weak-password') {
-            errorMessage = 'New password is too weak';
+            errorMessage = 'New password is too weak. Use at least 6 characters.';
           } else if (e.code == 'requires-recent-login') {
-            errorMessage = 'Please log out and log in again before changing password';
+            errorMessage = 'Please log out and log in again before changing password.';
+          } else if (e.code == 'user-not-found') {
+            errorMessage = 'No account found with this email.';
+          } else if (e.code == 'invalid-email') {
+            errorMessage = 'Invalid email address format.';
           } else {
             errorMessage = e.message ?? errorMessage;
           }
+        } else if (e.toString().contains('does not match')) {
+          errorMessage = 'Email does not match the logged-in user.';
         } else {
           errorMessage = e.toString();
         }
@@ -100,8 +122,24 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         // Show error message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(errorMessage),
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    errorMessage,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ),
+              ],
+            ),
             backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            margin: const EdgeInsets.all(16),
             duration: const Duration(seconds: 4),
           ),
         );

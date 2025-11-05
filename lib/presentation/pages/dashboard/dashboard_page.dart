@@ -93,7 +93,27 @@ class DashboardPage extends StatelessWidget {
                       () {
                         // TODO: Navigate to start ride
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Start Ride coming soon!')),
+                          SnackBar(
+                            content: const Row(
+                              children: [
+                                Icon(Icons.info_outline, color: Colors.white),
+                                SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Start Ride feature coming soon!',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            backgroundColor: AppColors.primaryOrange,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            margin: const EdgeInsets.all(16),
+                            duration: const Duration(seconds: 2),
+                          ),
                         );
                       },
                     ),
@@ -108,7 +128,27 @@ class DashboardPage extends StatelessWidget {
                       () {
                         // TODO: Navigate to goals
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Goals coming soon!')),
+                          SnackBar(
+                            content: const Row(
+                              children: [
+                                Icon(Icons.info_outline, color: Colors.white),
+                                SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Goals feature coming soon!',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            backgroundColor: AppColors.primaryPurple,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            margin: const EdgeInsets.all(16),
+                            duration: const Duration(seconds: 2),
+                          ),
                         );
                       },
                     ),
@@ -231,7 +271,27 @@ class DashboardPage extends StatelessWidget {
         onPressed: () {
           // TODO: Navigate to start ride
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Start Ride coming soon!')),
+            SnackBar(
+              content: const Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.white),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Start Ride feature coming soon!',
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ),
+                ],
+              ),
+              backgroundColor: AppColors.primaryOrange,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              margin: const EdgeInsets.all(16),
+              duration: const Duration(seconds: 2),
+            ),
           );
         },
         backgroundColor: AppColors.primaryOrange,
