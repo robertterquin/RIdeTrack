@@ -7,7 +7,7 @@ import 'package:bikeapp/presentation/pages/auth/get_started_page.dart';
 import 'package:bikeapp/presentation/pages/auth/login_page.dart';
 import 'package:bikeapp/presentation/pages/auth/signup_page.dart';
 import 'package:bikeapp/presentation/pages/auth/forgot_password_page.dart';
-import 'package:bikeapp/presentation/pages/main_container_page.dart';
+import 'package:bikeapp/presentation/pages/dashboard/dashboard_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
         '/auth/login': (context) => const LoginPage(),
         '/auth/signup': (context) => const SignUpPage(),
         '/auth/forgot-password': (context) => const ForgotPasswordPage(),
-        '/dashboard': (context) => const MainContainerPage(),
+        '/dashboard': (context) => const DashboardPage(),
       },
     );
   }
