@@ -126,6 +126,102 @@ class AuthService {
     }
   }
 
+  /// Check if a user exists with the given email
+  /// Returns true if user exists, false otherwise
+  Future<bool> checkUserExists(String email) async {
+    try {
+      // Send a password reset email - if it succeeds, user exists
+      // We won't actually send the email, just check if it would succeed
+      final userDoc = await _firestore
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get()
+          .timeout(const Duration(seconds: 5));
+      
+      return userDoc.docs.isNotEmpty;
+    } catch (e) {
+      print('⚠️ Error checking user existence: $e');
+      // If Firestore fails, try to send reset email as fallback verification
+      try {
+        await _auth.sendPasswordResetEmail(email: email);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+  }
+
+  /// Send password reset email (direct method for forgot password flow)
+  Future<void> resetPasswordViaEmail(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
+    }
+  }
+
+  /// Change password with email and current password verification
+  /// Verifies the email matches the current user before changing password
+  Future<void> changePassword({
+    required String email,
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      final user = _auth.currentUser;
+      
+      if (user == null) {
+        throw 'No user is currently logged in';
+      }
+
+      // Verify the email matches the current user's email
+      if (user.email?.toLowerCase() != email.toLowerCase()) {
+        throw 'Email does not match the logged-in user';
+      }
+
+      print('🔄 Re-authenticating user with email: $email');
+      
+      // Re-authenticate user with current password
+      final credential = EmailAuthProvider.credential(
+        email: email,
+        password: currentPassword,
+      );
+      
+      await user.reauthenticateWithCredential(credential);
+      
+      print('✅ Re-authentication successful, updating password...');
+      
+      // Update password
+      await user.updatePassword(newPassword);
+      
+      print('✅ Password updated successfully');
+
+      // Update Firestore to track password change timestamp
+      try {
+        await _firestore
+            .collection('users')
+            .doc(user.uid)
+            .update({
+              'lastPasswordChange': FieldValue.serverTimestamp(),
+            })
+            .timeout(
+              const Duration(seconds: 5),
+              onTimeout: () {
+                print('⚠️ Firestore update timed out');
+              },
+            );
+        print('✅ Password change timestamp updated in Firestore');
+      } catch (firestoreError) {
+        print('⚠️ Warning: Could not update Firestore: $firestoreError');
+        // Don't fail password change if Firestore update fails
+      }
+
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
+    }
+  }
+
   /// Handle Firebase Auth exceptions and return user-friendly messages
   String _handleAuthException(FirebaseAuthException e) {
     switch (e.code) {

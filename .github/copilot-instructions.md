@@ -74,6 +74,7 @@ Place platform-specific launch/splash images in the platform folders where appro
 - Onboarding flow for new users (profile setup, preferences).
 - Auth service in `core/services/auth_service.dart`; auth repository in `data/repositories/auth_repository.dart`.
 - Auth state management in `providers/auth_provider.dart`.
+- Forgot password flow sends password reset email via Firebase Auth.
 
 **Dashboard** (`presentation/pages/dashboard/`)
 - Total rides, distance, time; recent rides summary; weekly/monthly charts.

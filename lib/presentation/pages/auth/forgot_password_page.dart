@@ -1,52 +1,78 @@
 import 'package:flutter/material.dart';
 import 'package:bikeapp/core/constants/app_colors.dart';
 import 'package:bikeapp/core/services/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-/// Login Page
-/// Allows existing users to sign in
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+/// Forgot Password Page  
+/// Allows users to reset their password in-app with current password verification
+class ForgotPasswordPage extends StatefulWidget {
+  const ForgotPasswordPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _currentPasswordController = TextEditingController();
+  final _newPasswordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final _authService = AuthService();
-  bool _obscurePassword = true;
+  bool _obscureCurrentPassword = true;
+  bool _obscureNewPassword = true;
+  bool _obscureConfirmPassword = true;
   bool _isLoading = false;
 
   @override
   void dispose() {
     _emailController.dispose();
-    _passwordController.dispose();
+    _currentPasswordController.dispose();
+    _newPasswordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  void _handleLogin() async {
+  void _handleResetPassword() async {
     if (_formKey.currentState?.validate() ?? false) {
-      print('📝 Starting login process...');
+      print('📝 Starting password reset...');
       
       setState(() {
         _isLoading = true;
       });
 
       try {
-        print('🔄 Calling AuthService.signIn...');
+        print('🔄 Changing password for email: ${_emailController.text.trim()}');
         
-        // Sign in with Firebase Auth
-        final userCredential = await _authService.signIn(
+        // Change password using the auth service
+        await _authService.changePassword(
           email: _emailController.text.trim(),
-          password: _passwordController.text,
+          currentPassword: _currentPasswordController.text,
+          newPassword: _newPasswordController.text,
+        );
+        
+        print('✅ Password updated successfully');
+
+        setState(() {
+          _isLoading = false;
+        });
+
+        if (!mounted) return;
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Password changed successfully!'),
+            backgroundColor: AppColors.success,
+            duration: Duration(seconds: 3),
+          ),
         );
 
-        print('✅ Login successful! User ID: ${userCredential.user?.uid}');
+        // Navigate back to previous screen
+        Navigator.of(context).pop();
 
       } catch (e, stackTrace) {
-        print('❌ Login error: $e');
+        print('❌ Password reset error: $e');
         print('Stack trace: $stackTrace');
         
         setState(() {
@@ -55,35 +81,31 @@ class _LoginPageState extends State<LoginPage> {
         
         if (!mounted) return;
 
+        String errorMessage = 'Failed to change password';
+        
+        if (e is FirebaseAuthException) {
+          if (e.code == 'wrong-password') {
+            errorMessage = 'Current password is incorrect';
+          } else if (e.code == 'weak-password') {
+            errorMessage = 'New password is too weak';
+          } else if (e.code == 'requires-recent-login') {
+            errorMessage = 'Please log out and log in again before changing password';
+          } else {
+            errorMessage = e.message ?? errorMessage;
+          }
+        } else {
+          errorMessage = e.toString();
+        }
+
         // Show error message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString()),
+            content: Text(errorMessage),
             backgroundColor: AppColors.error,
             duration: const Duration(seconds: 4),
           ),
         );
-        return; // Exit early on error
       }
-
-      // If we got here, login was successful
-      setState(() {
-        _isLoading = false;
-      });
-
-      if (!mounted) {
-        print('⚠️ Widget not mounted, skipping navigation');
-        return;
-      }
-
-      print('🚀 Navigating to dashboard...');
-
-      // Navigate to dashboard on success
-      Navigator.of(context).pushReplacementNamed('/dashboard');
-      
-      print('✅ Navigation complete');
-    } else {
-      print('❌ Form validation failed');
     }
   }
 
@@ -111,7 +133,7 @@ class _LoginPageState extends State<LoginPage> {
                 
                 // Title
                 const Text(
-                  'Welcome Back!',
+                  'Change Password',
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -122,7 +144,7 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 8),
                 
                 const Text(
-                  'Sign in to continue tracking your rides',
+                  'Verify your email and enter a new password',
                   style: TextStyle(
                     fontSize: 16,
                     color: AppColors.textSecondary,
@@ -164,21 +186,21 @@ class _LoginPageState extends State<LoginPage> {
                 
                 const SizedBox(height: 20),
                 
-                // Password Field
+                // Current Password Field
                 TextFormField(
-                  controller: _passwordController,
-                  obscureText: _obscurePassword,
+                  controller: _currentPasswordController,
+                  obscureText: _obscureCurrentPassword,
                   decoration: InputDecoration(
-                    labelText: 'Password',
-                    hintText: 'Enter your password',
+                    labelText: 'Current Password',
+                    hintText: 'Enter current password',
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                        _obscureCurrentPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
                       ),
                       onPressed: () {
                         setState(() {
-                          _obscurePassword = !_obscurePassword;
+                          _obscureCurrentPassword = !_obscureCurrentPassword;
                         });
                       },
                     ),
@@ -196,42 +218,109 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
+                      return 'Please enter your current password';
                     }
                     return null;
                   },
                 ),
                 
-                const SizedBox(height: 12),
+                const SizedBox(height: 20),
                 
-                // Forgot Password
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pushNamed('/auth/forgot-password');
-                    },
-                    child: const Text(
-                      'Forgot Password?',
-                      style: TextStyle(
-                        color: AppColors.primaryOrange,
-                        fontWeight: FontWeight.w600,
+                // New Password Field
+                TextFormField(
+                  controller: _newPasswordController,
+                  obscureText: _obscureNewPassword,
+                  decoration: InputDecoration(
+                    labelText: 'New Password',
+                    hintText: 'Enter new password',
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureNewPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
                       ),
+                      onPressed: () {
+                        setState(() {
+                          _obscureNewPassword = !_obscureNewPassword;
+                        });
+                      },
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.lightGrey),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.primaryOrange, width: 2),
                     ),
                   ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a new password';
+                    }
+                    if (value.length < 6) {
+                      return 'Password must be at least 6 characters';
+                    }
+                    if (value == _currentPasswordController.text) {
+                      return 'New password must be different from current password';
+                    }
+                    return null;
+                  },
+                ),
+                
+                const SizedBox(height: 20),
+                
+                // Confirm Password Field
+                TextFormField(
+                  controller: _confirmPasswordController,
+                  obscureText: _obscureConfirmPassword,
+                  decoration: InputDecoration(
+                    labelText: 'Confirm New Password',
+                    hintText: 'Re-enter new password',
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscureConfirmPassword = !_obscureConfirmPassword;
+                        });
+                      },
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.lightGrey),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.primaryOrange, width: 2),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please confirm your new password';
+                    }
+                    if (value != _newPasswordController.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
+                  },
                 ),
                 
                 const SizedBox(height: 32),
                 
-                // Login Button
+                // Change Password Button
                 SizedBox(
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton(
-                    onPressed: _isLoading ? null : _handleLogin,
+                    onPressed: _isLoading ? null : _handleResetPassword,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryOrange,
                       foregroundColor: Colors.white,
@@ -251,7 +340,7 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           )
                         : const Text(
-                            'Sign In',
+                            'Change Password',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -263,22 +352,18 @@ class _LoginPageState extends State<LoginPage> {
                 
                 const SizedBox(height: 24),
                 
-                // Sign Up Link
+                // Cancel Link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      "Don't have an account? ",
-                      style: TextStyle(color: AppColors.textSecondary),
-                    ),
                     TextButton(
                       onPressed: () {
-                        Navigator.of(context).pushReplacementNamed('/auth/signup');
+                        Navigator.of(context).pop();
                       },
                       child: const Text(
-                        'Sign Up',
+                        'Cancel',
                         style: TextStyle(
-                          color: AppColors.primaryOrange,
+                          color: AppColors.textSecondary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
