@@ -34,8 +34,11 @@ class _DashboardPageState extends State<DashboardPage> {
             .get();
         
         if (doc.exists && mounted) {
+          final fullName = doc.data()?['name'] ?? 'User';
+          // Extract first name only (split by space and take first part)
+          final firstName = fullName.split(' ').first;
           setState(() {
-            _userName = doc.data()?['name'] ?? 'User';
+            _userName = firstName;
           });
         }
       }
