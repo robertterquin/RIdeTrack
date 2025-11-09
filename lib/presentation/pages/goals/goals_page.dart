@@ -13,6 +13,7 @@ class GoalsPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        automaticallyImplyLeading: false,
         title: const Text(
           'Goals',
           style: TextStyle(

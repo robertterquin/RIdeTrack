@@ -38,6 +38,7 @@ class _RidesPageState extends State<RidesPage> with SingleTickerProviderStateMix
               elevation: 0,
               floating: true,
               pinned: true,
+              automaticallyImplyLeading: false,
               title: const Text(
                 'My Rides',
                 style: TextStyle(
