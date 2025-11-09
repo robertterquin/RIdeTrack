@@ -95,11 +95,12 @@ class _RidesPageState extends State<RidesPage> with SingleTickerProviderStateMix
                 ),
               ],
               bottom: PreferredSize(
-                preferredSize: const Size.fromHeight(56),
+                preferredSize: const Size.fromHeight(64),
                 child: Container(
                   color: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
                   child: Container(
+                    height: 44,
                     decoration: BoxDecoration(
                       color: AppColors.primaryOrange.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
