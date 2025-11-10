@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:bikeapp/core/constants/app_colors.dart';
+import 'package:bikeapp/presentation/pages/ride/start_ride_page.dart';
 
 /// Rides Page
 /// Shows ride history, filters, and allows starting new rides
@@ -140,21 +141,9 @@ class _RidesPageState extends State<RidesPage> with SingleTickerProviderStateMix
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // TODO: Navigate to start ride page
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Row(
-                children: [
-                  Icon(Icons.info_outline, color: Colors.white),
-                  SizedBox(width: 12),
-                  Text('Start Ride feature coming soon!'),
-                ],
-              ),
-              backgroundColor: AppColors.primaryOrange,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              margin: const EdgeInsets.all(16),
-              duration: const Duration(seconds: 2),
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const StartRidePage(),
             ),
           );
         },
