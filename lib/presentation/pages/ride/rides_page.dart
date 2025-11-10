@@ -166,8 +166,7 @@ class _RidesPageState extends State<RidesPage> with SingleTickerProviderStateMix
   }
 
   Widget _buildRidesList(String category) {
-    // Mock ride data - will be replaced with real data from Firestore
-    // Apply time filter based on _selectedFilter
+    
     final rides = _getMockRides(category);
 
     if (rides.isEmpty) {
