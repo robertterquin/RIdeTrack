@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:bikeapp/core/constants/app_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:bikeapp/presentation/pages/ride/start_ride_page.dart';
 
 /// Dashboard / Home Page
 /// Shows user's stats summary, recent rides, and quick action buttons
@@ -221,28 +222,9 @@ class _DashboardPageState extends State<DashboardPage> {
                       Icons.play_circle_filled,
                       AppColors.primaryOrange,
                       () {
-                        // TODO: Navigate to start ride
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Row(
-                              children: [
-                                Icon(Icons.info_outline, color: Colors.white),
-                                SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    'Start Ride feature coming soon!',
-                                    style: TextStyle(fontSize: 14),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            backgroundColor: AppColors.primaryOrange,
-                            behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            margin: const EdgeInsets.all(16),
-                            duration: const Duration(seconds: 2),
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const StartRidePage(),
                           ),
                         );
                       },
