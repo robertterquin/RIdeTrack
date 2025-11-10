@@ -270,44 +270,86 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               shape: BoxShape.circle,
                               border: Border.all(color: AppColors.primaryOrange, width: 3),
                             ),
-                            child: CircleAvatar(
-                              radius: 60,
-                              backgroundColor: AppColors.backgroundGrey,
-                              backgroundImage: _imageFile != null
-                                  ? FileImage(_imageFile!)
-                                  : (_profileImageUrl != null
-                                      ? NetworkImage(_profileImageUrl!)
-                                      : null) as ImageProvider?,
-                              child: _imageFile == null && _profileImageUrl == null
-                                  ? Text(
-                                      _nameController.text.isNotEmpty
-                                          ? _nameController.text[0].toUpperCase()
-                                          : 'U',
-                                      style: const TextStyle(
-                                        fontSize: 40,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.textSecondary,
-                                      ),
-                                    )
-                                  : null,
+                            child: ClipOval(
+                              child: Container(
+                                width: 120,
+                                height: 120,
+                                color: AppColors.backgroundGrey,
+                                child: _imageFile != null
+                                    ? Image.memory(
+                                        _imageFile!.readAsBytesSync(),
+                                        fit: BoxFit.cover,
+                                        width: 120,
+                                        height: 120,
+                                      )
+                                    : (_profileImageUrl != null && _profileImageUrl!.isNotEmpty
+                                        ? Image.network(
+                                            _profileImageUrl!,
+                                            fit: BoxFit.cover,
+                                            width: 120,
+                                            height: 120,
+                                            loadingBuilder: (context, child, loadingProgress) {
+                                              if (loadingProgress == null) return child;
+                                              return Center(
+                                                child: CircularProgressIndicator(
+                                                  value: loadingProgress.expectedTotalBytes != null
+                                                      ? loadingProgress.cumulativeBytesLoaded /
+                                                          loadingProgress.expectedTotalBytes!
+                                                      : null,
+                                                  color: AppColors.primaryOrange,
+                                                ),
+                                              );
+                                            },
+                                            errorBuilder: (context, error, stackTrace) {
+                                              return Center(
+                                                child: Text(
+                                                  _nameController.text.isNotEmpty
+                                                      ? _nameController.text[0].toUpperCase()
+                                                      : 'U',
+                                                  style: const TextStyle(
+                                                    fontSize: 40,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: AppColors.textSecondary,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          )
+                                        : Center(
+                                            child: Text(
+                                              _nameController.text.isNotEmpty
+                                                  ? _nameController.text[0].toUpperCase()
+                                                  : 'U',
+                                              style: const TextStyle(
+                                                fontSize: 40,
+                                                fontWeight: FontWeight.bold,
+                                                color: AppColors.textSecondary,
+                                              ),
+                                            ),
+                                          )),
+                              ),
                             ),
                           ),
                           Positioned(
                             bottom: 0,
                             right: 0,
-                            child: GestureDetector(
-                              onTap: _pickImage,
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryOrange,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 3),
-                                ),
-                                child: const Icon(
-                                  Icons.camera_alt,
-                                  color: Colors.white,
-                                  size: 20,
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: _pickImage,
+                                borderRadius: BorderRadius.circular(50),
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryOrange,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: Colors.white, width: 3),
+                                  ),
+                                  child: const Icon(
+                                    Icons.camera_alt,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
                                 ),
                               ),
                             ),

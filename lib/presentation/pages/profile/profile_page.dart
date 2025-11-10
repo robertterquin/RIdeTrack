@@ -145,22 +145,53 @@ class _ProfilePageState extends State<ProfilePage> {
                                 shape: BoxShape.circle,
                                 border: Border.all(color: Colors.white, width: 3),
                               ),
-                              child: CircleAvatar(
-                                radius: 50,
-                                backgroundColor: Colors.white.withOpacity(0.3),
-                                backgroundImage: _profileImageUrl != null && _profileImageUrl!.isNotEmpty
-                                    ? NetworkImage(_profileImageUrl!)
-                                    : null,
-                                child: _profileImageUrl == null || _profileImageUrl!.isEmpty
-                                    ? Text(
-                                        _userName.isNotEmpty ? _userName[0].toUpperCase() : 'U',
-                                        style: const TextStyle(
-                                          fontSize: 40,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
+                              child: ClipOval(
+                                child: Container(
+                                  width: 100,
+                                  height: 100,
+                                  color: Colors.white.withOpacity(0.3),
+                                  child: _profileImageUrl != null && _profileImageUrl!.isNotEmpty
+                                      ? Image.network(
+                                          _profileImageUrl!,
+                                          fit: BoxFit.cover,
+                                          width: 100,
+                                          height: 100,
+                                          loadingBuilder: (context, child, loadingProgress) {
+                                            if (loadingProgress == null) return child;
+                                            return Center(
+                                              child: CircularProgressIndicator(
+                                                value: loadingProgress.expectedTotalBytes != null
+                                                    ? loadingProgress.cumulativeBytesLoaded /
+                                                        loadingProgress.expectedTotalBytes!
+                                                    : null,
+                                                color: Colors.white,
+                                              ),
+                                            );
+                                          },
+                                          errorBuilder: (context, error, stackTrace) {
+                                            return Center(
+                                              child: Text(
+                                                _userName.isNotEmpty ? _userName[0].toUpperCase() : 'U',
+                                                style: const TextStyle(
+                                                  fontSize: 40,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        )
+                                      : Center(
+                                          child: Text(
+                                            _userName.isNotEmpty ? _userName[0].toUpperCase() : 'U',
+                                            style: const TextStyle(
+                                              fontSize: 40,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
                                         ),
-                                      )
-                                    : null,
+                                ),
                               ),
                             ),
                             const SizedBox(height: 16),
