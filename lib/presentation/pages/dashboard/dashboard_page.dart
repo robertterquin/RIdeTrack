@@ -210,74 +210,85 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
 
-            // Quick Actions
+            // New Ride Action Button
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: [
-                  Row(
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const UnifiedRidePage(),
+                    ),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+                  decoration: BoxDecoration(
+                    gradient: AppColors.primaryGradient,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primaryOrange.withOpacity(0.4),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Expanded(
-                        child: _buildActionButton(
-                          context,
-                          'New Ride',
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
                           Icons.directions_bike,
-                          AppColors.primaryOrange,
-                          () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => const UnifiedRidePage(),
-                              ),
-                            );
-                          },
+                          color: Colors.white,
+                          size: 36,
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildActionButton(
-                          context,
-                          'Ride History',
-                          Icons.history,
-                          const Color(0xFF4CAF50),
-                          () {
-                            // Navigate to rides page (tab 1)
-                            DefaultTabController.of(context).animateTo(1);
-                          },
-                        ),
+                      const SizedBox(width: 20),
+                      const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Start New Ride',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Track your journey',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildActionButton(
-                          context,
-                          'Goals',
-                          Icons.flag_outlined,
-                          const Color(0xFF2196F3),
-                          () {
-                            // Navigate to goals page (tab 2)
-                            DefaultTabController.of(context).animateTo(2);
-                          },
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          shape: BoxShape.circle,
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildActionButton(
-                          context,
-                          'Statistics',
-                          Icons.bar_chart,
-                          AppColors.primaryPurple,
-                          () {
-                            // Navigate to statistics page (tab 3)
-                            DefaultTabController.of(context).animateTo(3);
-                          },
+                        child: const Icon(
+                          Icons.arrow_forward,
+                          color: Colors.white,
+                          size: 24,
                         ),
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
 
