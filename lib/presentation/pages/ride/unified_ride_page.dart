@@ -436,21 +436,21 @@ class _UnifiedRidePageState extends State<UnifiedRidePage> {
                 ),
             ],
             polylines: [
-              // Planned route (light gray when riding, orange when planning)
+              // Planned route (light gray when riding, violet when planning)
               if (_plannedRoute.isNotEmpty)
                 Polyline(
                   points: _plannedRoute,
                   strokeWidth: 4.0,
                   color: _isRiding
                       ? Colors.grey.withOpacity(0.5)
-                      : AppColors.primaryOrange,
+                      : AppColors.primaryPurple,
                 ),
-              // Actual route (orange, shown while riding)
+              // Actual route (violet, shown while riding)
               if (_actualRoute.length >= 2)
                 Polyline(
                   points: _actualRoute,
                   strokeWidth: 5.0,
-                  color: AppColors.primaryOrange,
+                  color: AppColors.primaryPurple,
                 ),
             ],
           ),

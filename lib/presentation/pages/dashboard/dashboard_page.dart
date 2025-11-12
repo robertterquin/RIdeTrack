@@ -224,11 +224,11 @@ class _DashboardPageState extends State<DashboardPage> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
                   decoration: BoxDecoration(
-                    gradient: AppColors.primaryGradient,
+                    gradient: AppColors.purpleGradient,
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primaryOrange.withOpacity(0.4),
+                        color: AppColors.primaryPurple.withOpacity(0.4),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                         spreadRadius: 2,
