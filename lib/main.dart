@@ -7,6 +7,7 @@ import 'package:bikeapp/presentation/pages/auth/get_started_page.dart';
 import 'package:bikeapp/presentation/pages/auth/login_page.dart';
 import 'package:bikeapp/presentation/pages/auth/signup_page.dart';
 import 'package:bikeapp/presentation/pages/auth/forgot_password_page.dart';
+import 'package:bikeapp/presentation/pages/profile/profile_upload_page.dart';
 import 'package:bikeapp/presentation/widgets/bottom_navbar/main_navigation.dart';
 
 void main() async {
@@ -38,6 +39,7 @@ class MyApp extends StatelessWidget {
         '/auth/signup': (context) => const SignUpPage(),
         '/auth/forgot-password': (context) => const ForgotPasswordPage(),
         '/dashboard': (context) => const MainNavigation(),
+        '/profile/upload': (context) => const ProfileUploadPage(),
       },
     );
   }

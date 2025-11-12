@@ -1,10 +1,11 @@
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:bikeapp/core/constants/app_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 /// Edit Profile Page
 /// Allows users to update their personal information
@@ -125,19 +126,40 @@ class _EditProfilePageState extends State<EditProfilePage> {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return null;
 
-      final storageRef = FirebaseStorage.instance
-          .ref()
-          .child('profile_images')
-          .child('${user.uid}.jpg');
+      // Cloudinary configuration
+      const cloudName = "dlkeeyrts";
+      const uploadPreset = "RideTrack";
 
+      final url = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
+      
       // Read file as bytes (works on all platforms including web)
       final bytes = await _imageFile!.readAsBytes();
-      await storageRef.putData(bytes);
-      final downloadUrl = await storageRef.getDownloadURL();
       
-      return downloadUrl;
+      final request = http.MultipartRequest('POST', url)
+        ..fields['upload_preset'] = uploadPreset
+        ..fields['folder'] = 'profile_images'
+        ..fields['public_id'] = user.uid // Use user ID as filename
+        ..files.add(http.MultipartFile.fromBytes(
+          'file',
+          bytes,
+          filename: '${user.uid}.jpg',
+        ));
+
+      final response = await request.send();
+      final resBody = await response.stream.bytesToString();
+
+      if (response.statusCode == 200) {
+        final data = json.decode(resBody);
+        final downloadUrl = data['secure_url'] as String;
+        print('✅ Profile image uploaded to Cloudinary: $downloadUrl');
+        return downloadUrl;
+      } else {
+        print('❌ Cloudinary upload failed: ${response.statusCode}');
+        print('Response: $resBody');
+        return null;
+      }
     } catch (e) {
-      print('Error uploading image: $e');
+      print('❌ Error uploading image: $e');
       return null;
     }
   }
