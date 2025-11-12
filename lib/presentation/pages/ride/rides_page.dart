@@ -3,6 +3,7 @@ import 'package:bikeapp/core/constants/app_colors.dart';
 import 'package:bikeapp/data/repositories/ride_repository.dart';
 import 'package:bikeapp/data/models/ride.dart';
 import 'package:intl/intl.dart';
+import 'ride_detail_page.dart';
 
 /// Rides Page
 /// Shows ride history, filters, and allows starting new rides
@@ -14,7 +15,7 @@ class RidesPage extends StatefulWidget {
 }
 
 class _RidesPageState extends State<RidesPage> {
-  String _selectedFilter = 'All';
+  String _selectedFilter = 'All'; // TODO: Implement actual filtering logic
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   final RideRepository _rideRepository = RideRepository();
@@ -239,6 +240,7 @@ class _RidesPageState extends State<RidesPage> {
         (context, index) {
           final ride = filteredRides[index];
           return _buildRideCard(
+            ride: ride,
             title: ride.name,
             distance: _formatDistance(ride.distance),
             duration: _formatDuration(ride.duration),
@@ -302,6 +304,7 @@ class _RidesPageState extends State<RidesPage> {
 
 
   Widget _buildRideCard({
+    required Ride ride,
     required String title,
     required String distance,
     required String duration,
@@ -327,21 +330,10 @@ class _RidesPageState extends State<RidesPage> {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {
-            // TODO: Navigate to ride details
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: [
-                    const Icon(Icons.info_outline, color: Colors.white),
-                    const SizedBox(width: 12),
-                    Expanded(child: Text('Ride details for "$title" coming soon!')),
-                  ],
-                ),
-                backgroundColor: AppColors.primaryPurple,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                margin: const EdgeInsets.all(16),
-                duration: const Duration(seconds: 2),
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RideDetailPage(ride: ride),
               ),
             );
           },
