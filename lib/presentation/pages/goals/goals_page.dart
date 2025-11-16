@@ -1037,174 +1037,317 @@ class _GoalDetailsDialog extends StatelessWidget {
     }
 
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: iconColor.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Icon(icon, color: iconColor, size: 32),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          goal.name.isNotEmpty ? goal.name : (goal.type[0].toUpperCase() + goal.type.substring(1) + ' Goal'),
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        Text(
-                          '${goal.type[0].toUpperCase() + goal.type.substring(1)} • ${goal.period == 'weekly' ? 'Weekly' : 'Monthly'}',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
+      backgroundColor: Colors.transparent,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [
+            BoxShadow(
+              color: iconColor.withOpacity(0.2),
+              blurRadius: 30,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        iconColor.withOpacity(0.1),
+                        iconColor.withOpacity(0.05),
                       ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 24),
-
-              // Progress Circle
-              Center(
-                child: SizedBox(
-                  width: 150,
-                  height: 150,
-                  child: Stack(
+                  child: Row(
                     children: [
-                      CircularProgressIndicator(
-                        value: goal.progressPercentage / 100,
-                        strokeWidth: 12,
-                        backgroundColor: Colors.grey.shade200,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          goal.isCompleted ? AppColors.success : iconColor,
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              iconColor,
+                              iconColor.withOpacity(0.7),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: iconColor.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
+                        child: Icon(icon, color: Colors.white, size: 28),
                       ),
-                      Center(
+                      const SizedBox(width: 16),
+                      Expanded(
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '${goal.progressPercentage.toStringAsFixed(0)}%',
+                              goal.name.isNotEmpty ? goal.name : (goal.type[0].toUpperCase() + goal.type.substring(1) + ' Goal'),
                               style: const TextStyle(
-                                fontSize: 32,
+                                fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.textPrimary,
                               ),
                             ),
-                            Text(
-                              _formatGoalValue(goal.currentValue, goal.type),
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: AppColors.textSecondary,
+                            const SizedBox(height: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                '${goal.type[0].toUpperCase() + goal.type.substring(1)} • ${goal.period == 'weekly' ? 'Weekly' : 'Monthly'}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: iconColor,
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.close, size: 20),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-              // Stats
-              _buildStatRow('Target', _formatGoalValue(goal.targetValue, goal.type)),
-              const Divider(height: 24),
-              _buildStatRow('Current', _formatGoalValue(goal.currentValue, goal.type)),
-              const Divider(height: 24),
-              _buildStatRow('Remaining', _formatGoalValue(goal.remainingValue, goal.type)),
-              const Divider(height: 24),
-              _buildStatRow('Period', '${DateFormat('MMM d').format(goal.startDate)} - ${DateFormat('MMM d').format(goal.endDate)}'),
-
-              const SizedBox(height: 24),
-
-              // Actions
-              if (goal.isCompleted || goal.isExpired)
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton.icon(
-                    onPressed: () => _renewGoal(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryOrange,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                // Progress Circle
+                Center(
+                  child: Container(
+                    width: 180,
+                    height: 180,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          iconColor.withOpacity(0.05),
+                          iconColor.withOpacity(0.02),
+                          Colors.transparent,
+                        ],
+                        stops: const [0.5, 0.8, 1.0],
                       ),
                     ),
-                    icon: const Icon(Icons.refresh, color: Colors.white),
-                    label: const Text(
-                      'Create New Goal',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                    child: Center(
+                      child: SizedBox(
+                        width: 160,
+                        height: 160,
+                        child: Stack(
+                          children: [
+                            CircularProgressIndicator(
+                              value: goal.progressPercentage / 100,
+                              strokeWidth: 14,
+                              backgroundColor: Colors.grey.shade100,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                goal.isCompleted ? AppColors.success : iconColor,
+                              ),
+                              strokeCap: StrokeCap.round,
+                            ),
+                            Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    '${goal.progressPercentage.toStringAsFixed(0)}%',
+                                    style: TextStyle(
+                                      fontSize: 38,
+                                      fontWeight: FontWeight.bold,
+                                      color: goal.isCompleted ? AppColors.success : iconColor,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _formatGoalValue(goal.currentValue, goal.type),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              
-              const SizedBox(height: 12),
 
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: OutlinedButton.icon(
-                  onPressed: () => _deleteGoal(context),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.error,
-                    side: const BorderSide(color: AppColors.error),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                const SizedBox(height: 24),
+
+                // Stats
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.grey.shade100),
+                  ),
+                  child: Column(
+                    children: [
+                      _buildStatRow('Target', _formatGoalValue(goal.targetValue, goal.type), Icons.flag_outlined, iconColor),
+                      const SizedBox(height: 16),
+                      _buildStatRow('Current', _formatGoalValue(goal.currentValue, goal.type), Icons.trending_up, AppColors.success),
+                      const SizedBox(height: 16),
+                      _buildStatRow('Remaining', _formatGoalValue(goal.remainingValue, goal.type), Icons.pending_actions, AppColors.primaryPurple),
+                      const SizedBox(height: 16),
+                      _buildStatRow('Period', '${DateFormat('MMM d').format(goal.startDate)} - ${DateFormat('MMM d').format(goal.endDate)}', Icons.calendar_today_outlined, AppColors.textSecondary),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Actions
+                if (goal.isCompleted || goal.isExpired)
+                  Container(
+                    width: double.infinity,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColors.primaryOrange,
+                          AppColors.primaryOrange.withOpacity(0.8),
+                        ],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primaryOrange.withOpacity(0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton.icon(
+                      onPressed: () => _renewGoal(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      icon: const Icon(Icons.refresh, color: Colors.white, size: 22),
+                      label: const Text(
+                        'Create New Goal',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
                     ),
                   ),
-                  icon: const Icon(Icons.delete_outline),
-                  label: const Text('Delete Goal', style: TextStyle(fontWeight: FontWeight.w600)),
+
+                const SizedBox(height: 12),
+
+                Container(
+                  width: double.infinity,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: AppColors.error.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: AppColors.error.withOpacity(0.3),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: OutlinedButton.icon(
+                    onPressed: () => _deleteGoal(context),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.error,
+                      side: BorderSide.none,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    icon: const Icon(Icons.delete_outline, size: 22),
+                    label: const Text(
+                      'Delete Goal',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildStatRow(String label, String value) {
+  Widget _buildStatRow(String label, String value, IconData icon, Color color) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: AppColors.textSecondary,
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: color, size: 18),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: AppColors.textSecondary,
+            ),
           ),
         ),
         Text(
           value,
           style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
             color: AppColors.textPrimary,
           ),
         ),
