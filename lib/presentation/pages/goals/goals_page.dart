@@ -255,9 +255,6 @@ class _GoalsPageState extends State<GoalsPage> {
       case 'rides':
         icon = Icons.directions_bike;
         break;
-      case 'calories':
-        icon = Icons.local_fire_department;
-        break;
       default:
         icon = Icons.flag;
     }
@@ -454,8 +451,6 @@ class _GoalsPageState extends State<GoalsPage> {
         return 'Distance Goal';
       case 'rides':
         return 'Rides Goal';
-      case 'calories':
-        return 'Calories Goal';
       default:
         return 'Goal';
     }
@@ -467,8 +462,6 @@ class _GoalsPageState extends State<GoalsPage> {
         return '${value.toStringAsFixed(1)} km';
       case 'rides':
         return '${value.toInt()} rides';
-      case 'calories':
-        return '${value.toInt()} kcal';
       default:
         return value.toString();
     }
@@ -502,7 +495,8 @@ class _AddGoalDialog extends StatefulWidget {
 
 class _AddGoalDialogState extends State<_AddGoalDialog> {
   final GoalRepository _goalRepository = GoalRepository();
-  final _targetController = TextEditingController();
+  final _distanceController = TextEditingController();
+  final _ridesController = TextEditingController();
   
   String _selectedType = 'distance';
   String _selectedPeriod = 'weekly';
@@ -510,19 +504,22 @@ class _AddGoalDialogState extends State<_AddGoalDialog> {
 
   @override
   void dispose() {
-    _targetController.dispose();
+    _distanceController.dispose();
+    _ridesController.dispose();
     super.dispose();
   }
 
   Future<void> _createGoal() async {
-    if (_targetController.text.isEmpty) {
+    final controller = _selectedType == 'distance' ? _distanceController : _ridesController;
+    
+    if (controller.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter a target value')),
       );
       return;
     }
 
-    final targetValue = double.tryParse(_targetController.text);
+    final targetValue = double.tryParse(controller.text);
     if (targetValue == null || targetValue <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter a valid target value')),
@@ -596,8 +593,6 @@ class _AddGoalDialogState extends State<_AddGoalDialog> {
         return 'km';
       case 'rides':
         return 'rides';
-      case 'calories':
-        return 'kcal';
       default:
         return '';
     }
@@ -606,11 +601,9 @@ class _AddGoalDialogState extends State<_AddGoalDialog> {
   String _getHint() {
     switch (_selectedType) {
       case 'distance':
-        return 'e.g., 50';
+        return 'Enter distance';
       case 'rides':
-        return 'e.g., 5';
-      case 'calories':
-        return 'e.g., 2000';
+        return 'Enter number of rides';
       default:
         return '';
     }
@@ -618,147 +611,173 @@ class _AddGoalDialogState extends State<_AddGoalDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final controller = _selectedType == 'distance' ? _distanceController : _ridesController;
+    
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Create New Goal',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
+      backgroundColor: Colors.transparent,
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 400),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Create New Goal',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: AppColors.textSecondary),
+                      onPressed: () => Navigator.of(context).pop(),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
+                ),
+                
+                const SizedBox(height: 28),
+
+                // Goal Type Selection
+                const Text(
+                  'Goal Type',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildTypeButton('distance', 'Distance', Icons.straighten),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildTypeButton('rides', 'Rides', Icons.directions_bike),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 24),
+
+                // Period Selection
+                const Text(
+                  'Period',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildPeriodButton('weekly', 'Weekly'),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildPeriodButton('monthly', 'Monthly'),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 24),
+
+                // Target Value Input
+                const Text(
+                  'Target',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: controller,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: _getHint(),
+                    hintStyle: TextStyle(
+                      color: AppColors.textSecondary.withOpacity(0.5),
+                      fontWeight: FontWeight.normal,
+                    ),
+                    suffixText: _getUnit(),
+                    suffixStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-              
-              const SizedBox(height: 20),
-
-              // Goal Type Selection
-              const Text(
-                'Goal Type',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildTypeButton('distance', 'Distance', Icons.straighten),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildTypeButton('rides', 'Rides', Icons.directions_bike),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildTypeButton('calories', 'Calories', Icons.local_fire_department),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-
-              // Period Selection
-              const Text(
-                'Period',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildPeriodButton('weekly', 'Weekly'),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildPeriodButton('monthly', 'Monthly'),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-
-              // Target Value Input
-              const Text(
-                'Target',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _targetController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  hintText: _getHint(),
-                  suffixText: _getUnit(),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primaryOrange, width: 2),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Create Button
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _isSaving ? null : _createGoal,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryOrange,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    filled: true,
+                    fillColor: AppColors.backgroundGrey,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
                     ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(color: AppColors.primaryOrange, width: 2),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                   ),
-                  child: _isSaving
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : const Text(
-                          'Create Goal',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
                 ),
-              ),
-            ],
+
+                const SizedBox(height: 32),
+
+                // Create Button
+                SizedBox(
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: _isSaving ? null : _createGoal,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryOrange,
+                      disabledBackgroundColor: AppColors.primaryOrange.withOpacity(0.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: _isSaving
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.5,
+                            ),
+                          )
+                        : const Text(
+                            'Create Goal',
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -774,10 +793,10 @@ class _AddGoalDialogState extends State<_AddGoalDialog> {
         });
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryOrange.withOpacity(0.15) : Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(12),
+          color: isSelected ? AppColors.primaryOrange : AppColors.backgroundGrey,
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? AppColors.primaryOrange : Colors.transparent,
             width: 2,
@@ -787,16 +806,16 @@ class _AddGoalDialogState extends State<_AddGoalDialog> {
           children: [
             Icon(
               icon,
-              color: isSelected ? AppColors.primaryOrange : AppColors.textSecondary,
-              size: 28,
+              color: isSelected ? Colors.white : AppColors.textSecondary,
+              size: 32,
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             Text(
               label,
               style: TextStyle(
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                color: isSelected ? AppColors.primaryOrange : AppColors.textSecondary,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? Colors.white : AppColors.textSecondary,
               ),
             ),
           ],
@@ -814,10 +833,10 @@ class _AddGoalDialogState extends State<_AddGoalDialog> {
         });
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryPurple.withOpacity(0.15) : Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(12),
+          color: isSelected ? AppColors.primaryPurple : AppColors.backgroundGrey,
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? AppColors.primaryPurple : Colors.transparent,
             width: 2,
@@ -827,9 +846,9 @@ class _AddGoalDialogState extends State<_AddGoalDialog> {
           label,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 14,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-            color: isSelected ? AppColors.primaryPurple : AppColors.textSecondary,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: isSelected ? Colors.white : AppColors.textSecondary,
           ),
         ),
       ),
@@ -917,8 +936,6 @@ class _GoalDetailsDialog extends StatelessWidget {
         return '${value.toStringAsFixed(1)} km';
       case 'rides':
         return '${value.toInt()} rides';
-      case 'calories':
-        return '${value.toInt()} kcal';
       default:
         return value.toString();
     }
@@ -937,10 +954,6 @@ class _GoalDetailsDialog extends StatelessWidget {
       case 'rides':
         icon = Icons.directions_bike;
         iconColor = AppColors.primaryOrange;
-        break;
-      case 'calories':
-        icon = Icons.local_fire_department;
-        iconColor = AppColors.error;
         break;
       default:
         icon = Icons.flag;
