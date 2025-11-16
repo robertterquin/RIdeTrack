@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Goal {
   final String id;
   final String userId;
+  final String name; // User-defined goal name
   final String type; // 'distance', 'rides', or 'calories'
   final double targetValue; // Target to achieve (km for distance, count for rides, kcal for calories)
   final double currentValue; // Current progress
@@ -18,6 +19,7 @@ class Goal {
   Goal({
     required this.id,
     required this.userId,
+    required this.name,
     required this.type,
     required this.targetValue,
     this.currentValue = 0.0,
@@ -83,6 +85,7 @@ class Goal {
     return Goal(
       id: doc.id,
       userId: data['userId'] ?? '',
+      name: data['name'] ?? '',
       type: data['type'] ?? 'distance',
       targetValue: (data['targetValue'] ?? 0).toDouble(),
       currentValue: (data['currentValue'] ?? 0).toDouble(),
@@ -101,6 +104,7 @@ class Goal {
   Map<String, dynamic> toFirestore() {
     return {
       'userId': userId,
+      'name': name,
       'type': type,
       'targetValue': targetValue,
       'currentValue': currentValue,
@@ -117,6 +121,7 @@ class Goal {
   Goal copyWith({
     String? id,
     String? userId,
+    String? name,
     String? type,
     double? targetValue,
     double? currentValue,
@@ -130,6 +135,7 @@ class Goal {
     return Goal(
       id: id ?? this.id,
       userId: userId ?? this.userId,
+      name: name ?? this.name,
       type: type ?? this.type,
       targetValue: targetValue ?? this.targetValue,
       currentValue: currentValue ?? this.currentValue,

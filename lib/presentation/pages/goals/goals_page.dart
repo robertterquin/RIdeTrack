@@ -308,7 +308,7 @@ class _GoalsPageState extends State<GoalsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _getGoalTitle(goal.type),
+                            goal.name.isNotEmpty ? goal.name : _getGoalTitle(goal.type),
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -317,7 +317,7 @@ class _GoalsPageState extends State<GoalsPage> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            goal.period == 'weekly' ? 'Weekly Goal' : 'Monthly Goal',
+                            '${_getGoalTitle(goal.type)} • ${goal.period == 'weekly' ? 'Weekly' : 'Monthly'}',
                             style: TextStyle(
                               fontSize: 12,
                               color: AppColors.textSecondary,
@@ -495,6 +495,7 @@ class _AddGoalDialog extends StatefulWidget {
 
 class _AddGoalDialogState extends State<_AddGoalDialog> {
   final GoalRepository _goalRepository = GoalRepository();
+  final _nameController = TextEditingController();
   final _distanceController = TextEditingController();
   final _ridesController = TextEditingController();
   
@@ -504,12 +505,20 @@ class _AddGoalDialogState extends State<_AddGoalDialog> {
 
   @override
   void dispose() {
+    _nameController.dispose();
     _distanceController.dispose();
     _ridesController.dispose();
     super.dispose();
   }
 
   Future<void> _createGoal() async {
+    if (_nameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a goal name')),
+      );
+      return;
+    }
+    
     final controller = _selectedType == 'distance' ? _distanceController : _ridesController;
     
     if (controller.text.isEmpty) {
@@ -545,6 +554,7 @@ class _AddGoalDialogState extends State<_AddGoalDialog> {
       final goal = Goal(
         id: '',
         userId: currentUserId,
+        name: _nameController.text.trim(),
         type: _selectedType,
         targetValue: targetValue,
         currentValue: 0,
@@ -650,6 +660,45 @@ class _AddGoalDialogState extends State<_AddGoalDialog> {
                 ),
                 
                 const SizedBox(height: 28),
+
+                // Goal Name Input
+                const Text(
+                  'Goal Name',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _nameController,
+                  textCapitalization: TextCapitalization.words,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'e.g., Weekend Warrior, Monthly Challenge',
+                    hintStyle: TextStyle(
+                      color: AppColors.textSecondary.withOpacity(0.5),
+                      fontWeight: FontWeight.normal,
+                    ),
+                    filled: true,
+                    fillColor: AppColors.backgroundGrey,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(color: AppColors.primaryOrange, width: 2),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
 
                 // Goal Type Selection
                 const Text(
@@ -986,7 +1035,7 @@ class _GoalDetailsDialog extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          goal.type[0].toUpperCase() + goal.type.substring(1) + ' Goal',
+                          goal.name.isNotEmpty ? goal.name : (goal.type[0].toUpperCase() + goal.type.substring(1) + ' Goal'),
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -994,7 +1043,7 @@ class _GoalDetailsDialog extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          goal.period == 'weekly' ? 'Weekly' : 'Monthly',
+                          '${goal.type[0].toUpperCase() + goal.type.substring(1)} • ${goal.period == 'weekly' ? 'Weekly' : 'Monthly'}',
                           style: TextStyle(
                             fontSize: 14,
                             color: AppColors.textSecondary,

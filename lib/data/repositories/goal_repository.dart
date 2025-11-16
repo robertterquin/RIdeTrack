@@ -202,6 +202,7 @@ class GoalRepository {
     final newGoal = Goal(
       id: '',
       userId: _currentUserId!,
+      name: oldGoal.name,
       type: oldGoal.type,
       targetValue: oldGoal.targetValue,
       currentValue: 0,
