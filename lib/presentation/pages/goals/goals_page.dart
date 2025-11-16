@@ -396,25 +396,52 @@ class _GoalsPageState extends State<GoalsPage> {
                   ],
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
 
-                // Current/Target display
+                // Current/Target display in compact format
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      _formatGoalValue(goal.currentValue, goal.type),
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: isCompleted ? AppColors.textSecondary : AppColors.textPrimary,
-                      ),
-                    ),
-                    Text(
-                      'Target: ${_formatGoalValue(goal.targetValue, goal.type)}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.textSecondary,
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: goal.type == 'distance' 
+                                ? goal.currentValue.toStringAsFixed(1)
+                                : goal.currentValue.toInt().toString(),
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: progressColor,
+                            ),
+                          ),
+                          TextSpan(
+                            text: ' / ',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w300,
+                              color: AppColors.textSecondary.withOpacity(0.5),
+                            ),
+                          ),
+                          TextSpan(
+                            text: goal.type == 'distance'
+                                ? goal.targetValue.toStringAsFixed(1)
+                                : goal.targetValue.toInt().toString(),
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: isCompleted ? AppColors.textSecondary : AppColors.textPrimary,
+                            ),
+                          ),
+                          TextSpan(
+                            text: goal.type == 'distance' ? ' km' : ' rides',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
