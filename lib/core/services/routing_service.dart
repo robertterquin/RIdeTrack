@@ -4,13 +4,14 @@ import 'package:latlong2/latlong.dart';
 
 /// Service for route calculation and geocoding
 class RoutingService {
-  /// Get route between two points using OpenRouteService (free, requires API key)
-  /// Alternative: Use OSRM (free, no API key needed)
+  /// Get route between two points using OSRM bike profile
+  /// Uses bicycle routing which avoids expressways and highways
   Future<List<LatLng>> getRoute(LatLng start, LatLng end) async {
     try {
-      // Using OSRM free routing service
+      // Using OSRM free routing service with bike profile
+      // This automatically avoids expressways, highways, and motorways
       final url = Uri.parse(
-        'https://router.project-osrm.org/route/v1/driving/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?overview=full&geometries=geojson',
+        'https://router.project-osrm.org/route/v1/bike/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?overview=full&geometries=geojson',
       );
 
       final response = await http.get(url);
@@ -36,11 +37,11 @@ class RoutingService {
     }
   }
 
-  /// Get route distance in meters
+  /// Get route distance in meters using bike-friendly routes
   Future<double> getRouteDistance(LatLng start, LatLng end) async {
     try {
       final url = Uri.parse(
-        'https://router.project-osrm.org/route/v1/driving/${start.longitude},${start.latitude};${end.longitude},${end.latitude}',
+        'https://router.project-osrm.org/route/v1/bike/${start.longitude},${start.latitude};${end.longitude},${end.latitude}',
       );
 
       final response = await http.get(url);
@@ -64,11 +65,11 @@ class RoutingService {
     }
   }
 
-  /// Get estimated duration in seconds
+  /// Get estimated duration in seconds for bike-friendly routes
   Future<int> getRouteDuration(LatLng start, LatLng end) async {
     try {
       final url = Uri.parse(
-        'https://router.project-osrm.org/route/v1/driving/${start.longitude},${start.latitude};${end.longitude},${end.latitude}',
+        'https://router.project-osrm.org/route/v1/bike/${start.longitude},${start.latitude};${end.longitude},${end.latitude}',
       );
 
       final response = await http.get(url);
