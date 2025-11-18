@@ -329,13 +329,18 @@ class _RidesPageState extends State<RidesPage> {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () {
-            Navigator.push(
+          onTap: () async {
+            final deleted = await Navigator.push<bool>(
               context,
               MaterialPageRoute(
                 builder: (context) => RideDetailPage(ride: ride),
               ),
             );
+            
+            // Reload rides if a ride was deleted
+            if (deleted == true && mounted) {
+              _loadRides();
+            }
           },
           child: Padding(
             padding: const EdgeInsets.all(16),

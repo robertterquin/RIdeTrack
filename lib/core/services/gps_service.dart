@@ -30,18 +30,30 @@ class GpsService {
     return true;
   }
 
-  /// Get current position
+  /// Get current position with best accuracy
   Future<Position> getCurrentPosition() async {
     return await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
+      desiredAccuracy: LocationAccuracy.bestForNavigation,
+      timeLimit: const Duration(seconds: 15),
     );
   }
 
-  /// Get position stream for continuous tracking
+  /// Get last known position (useful for quick initial display)
+  Future<Position?> getLastKnownPosition() async {
+    try {
+      return await Geolocator.getLastKnownPosition();
+    } catch (e) {
+      print('Error getting last known position: $e');
+      return null;
+    }
+  }
+
+  /// Get position stream for continuous tracking with best accuracy
   Stream<Position> getPositionStream() {
     const LocationSettings locationSettings = LocationSettings(
-      accuracy: LocationAccuracy.high,
-      distanceFilter: 10, // Update every 10 meters
+      accuracy: LocationAccuracy.bestForNavigation,
+      distanceFilter: 5, // Update every 5 meters for better accuracy
+      timeLimit: Duration(seconds: 15),
     );
 
     return Geolocator.getPositionStream(locationSettings: locationSettings);

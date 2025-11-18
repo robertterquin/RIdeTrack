@@ -50,7 +50,10 @@ class _UnifiedRidePageState extends State<UnifiedRidePage> {
   double _currentSpeed = 0.0;
   DateTime? _rideStartTime;
   Timer? _timer;
+  Timer? _locationRefreshTimer;
   StreamSubscription<Position>? _positionStream;
+  double _currentAccuracy = 0.0;
+  static const double _accuracyThreshold = 50.0; // Reject positions worse than 50m accuracy
 
   @override
   void initState() {
@@ -62,6 +65,7 @@ class _UnifiedRidePageState extends State<UnifiedRidePage> {
   void dispose() {
     _endController.dispose();
     _timer?.cancel();
+    _locationRefreshTimer?.cancel();
     _positionStream?.cancel();
     super.dispose();
   }
@@ -69,19 +73,70 @@ class _UnifiedRidePageState extends State<UnifiedRidePage> {
   Future<void> _getCurrentLocation() async {
     try {
       final hasPermission = await _gpsService.requestPermission();
-      if (!hasPermission) return;
+      if (!hasPermission) {
+        print('❌ Location permission denied');
+        return;
+      }
 
+      // Try to get last known position first for quick initial display
+      final lastPosition = await _gpsService.getLastKnownPosition();
+      if (lastPosition != null && mounted) {
+        setState(() {
+          _currentLocation = LatLng(lastPosition.latitude, lastPosition.longitude);
+          _startPoint = _currentLocation;
+          _currentAccuracy = lastPosition.accuracy;
+        });
+        _mapController.move(_currentLocation!, 15.0);
+        print('📍 Using last known position (accuracy: ${lastPosition.accuracy.toStringAsFixed(1)}m)');
+      }
+
+      // Then get fresh high-accuracy position
       final position = await _gpsService.getCurrentPosition();
       if (mounted) {
         setState(() {
           _currentLocation = LatLng(position.latitude, position.longitude);
           _startPoint = _currentLocation;
+          _currentAccuracy = position.accuracy;
         });
         _mapController.move(_currentLocation!, 15.0);
+        print('✅ Got fresh position (accuracy: ${position.accuracy.toStringAsFixed(1)}m)');
       }
+
+      // Start periodic refresh when not riding
+      _startLocationRefresh();
     } catch (e) {
-      print('Error getting current location: $e');
+      print('❌ Error getting current location: $e');
     }
+  }
+
+  /// Periodically refresh location when not riding
+  void _startLocationRefresh() {
+    _locationRefreshTimer?.cancel();
+    if (!_isRiding) {
+      _locationRefreshTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+        if (!_isRiding && mounted) {
+          try {
+            final position = await _gpsService.getCurrentPosition();
+            if (mounted && position.accuracy < _accuracyThreshold) {
+              setState(() {
+                _currentLocation = LatLng(position.latitude, position.longitude);
+                _startPoint = _currentLocation;
+                _currentAccuracy = position.accuracy;
+              });
+              print('🔄 Location refreshed (accuracy: ${position.accuracy.toStringAsFixed(1)}m)');
+            }
+          } catch (e) {
+            print('⚠️ Location refresh failed: $e');
+          }
+        }
+      });
+    }
+  }
+
+  /// Stop location refresh timer
+  void _stopLocationRefresh() {
+    _locationRefreshTimer?.cancel();
+    _locationRefreshTimer = null;
   }
 
   Future<void> _searchLocation(String query) async {
@@ -199,6 +254,9 @@ class _UnifiedRidePageState extends State<UnifiedRidePage> {
   }
 
   void _startRide() {
+    // Stop location refresh timer (will use GPS stream instead)
+    _stopLocationRefresh();
+    
     setState(() {
       _isRiding = true;
       _isPaused = false;
@@ -220,10 +278,34 @@ class _UnifiedRidePageState extends State<UnifiedRidePage> {
       }
     });
 
-    // Start GPS tracking
+    // Start GPS tracking with accuracy filtering
     _positionStream = _gpsService.getPositionStream().listen((position) {
       if (!_isPaused && mounted) {
+        // Filter out inaccurate positions
+        if (position.accuracy > _accuracyThreshold) {
+          print('⚠️ Rejecting inaccurate position (accuracy: ${position.accuracy.toStringAsFixed(1)}m)');
+          return;
+        }
+
         final newLocation = LatLng(position.latitude, position.longitude);
+        
+        // Reject positions that are too far from last point (likely GPS jump)
+        if (_actualRoute.isNotEmpty) {
+          final lastPoint = _actualRoute.last;
+          final distance = _gpsService.calculateDistance(
+            lastPoint.latitude,
+            lastPoint.longitude,
+            newLocation.latitude,
+            newLocation.longitude,
+          );
+          
+          // Reject if distance is unrealistic (more than 100m in update interval)
+          // At 50 km/h, you travel ~14m per second, so 100m is very generous for 5-10s updates
+          if (distance > 100) {
+            print('⚠️ Rejecting GPS jump: ${distance.toStringAsFixed(0)}m from last point');
+            return;
+          }
+        }
         
         setState(() {
           // Calculate distance from last point
@@ -241,7 +323,10 @@ class _UnifiedRidePageState extends State<UnifiedRidePage> {
           _currentLocation = newLocation;
           _actualRoute.add(newLocation);
           _currentSpeed = position.speed * 3.6; // m/s to km/h
+          _currentAccuracy = position.accuracy;
         });
+
+        print('✅ Position updated (accuracy: ${position.accuracy.toStringAsFixed(1)}m, speed: ${_currentSpeed.toStringAsFixed(1)} km/h)');
 
         // Keep map centered on current location
         _mapController.move(newLocation, _mapController.camera.zoom);
@@ -264,6 +349,9 @@ class _UnifiedRidePageState extends State<UnifiedRidePage> {
   void _stopRide() {
     _timer?.cancel();
     _positionStream?.cancel();
+    
+    // Restart location refresh for planning mode
+    _startLocationRefresh();
 
     _showRideSummary();
   }
