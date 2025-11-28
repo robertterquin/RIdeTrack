@@ -136,7 +136,7 @@ class RideDetailPage extends StatelessWidget {
                         Polyline(
                           points: ride.plannedRoute!,
                           strokeWidth: 3,
-                          color: Colors.blue.withOpacity(0.5),
+                          color: const Color(0xFF4A90E2).withOpacity(0.6),
                           borderStrokeWidth: 1,
                           borderColor: Colors.white,
                         ),
@@ -147,8 +147,8 @@ class RideDetailPage extends StatelessWidget {
                     polylines: [
                       Polyline(
                         points: routeToShow,
-                        strokeWidth: 4,
-                        color: AppColors.primaryPurple,
+                        strokeWidth: 5,
+                        color: const Color(0xFFFF6B35),
                         borderStrokeWidth: 2,
                         borderColor: Colors.white,
                       ),
